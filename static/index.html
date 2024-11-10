@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rozkładacz</title>
+</head>
+<body>
+    <style>
+        /* Reset basic styling */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Basic page layout */
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #f4f6f9;
+            color: #333;
+            padding: 20px;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+            font-size: 2rem;
+            color: #2c3e50;
+        }
+
+        p {
+            margin-bottom: 20px;
+            text-align: center;
+            max-width: 600px;
+            line-height: 1.5;
+            color: #555;
+        }
+
+        /* Form styling */
+        form {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px 25px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #444;
+            display: inline-block;
+            margin-bottom: 5px;
+        }
+
+        input[type="radio"], input[type="checkbox"] {
+            margin-right: 8px;
+        }
+
+        /* Styling for inputs */
+        input[type="date"] {
+            width: 100%;
+            padding: 8px;
+            font-size: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="date"]:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+
+        /* Button styling */
+        button[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 1rem;
+            color: #fff;
+            background-color: #3498db;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #2980b9;
+        }
+
+        /* Responsive layout */
+        @media (max-width: 500px) {
+            form {
+                padding: 15px 20px;
+            }
+            h1 {
+                font-size: 1.5rem;
+            }
+            p {
+                font-size: 0.9rem;
+            }
+        }
+        .loader-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 5px solid #FFF;
+            border-bottom-color: transparent;
+            border-radius: 50%;
+            animation: rotation 1s linear infinite;
+        }
+
+        @keyframes rotation {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .download-btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+
+        .download-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+    </style>
+    <!-- Loading overlay -->
+    <div class="loader-container">
+        <div class="loader"></div>
+    </div>
+    <h1>Rozkładacz</h1>
+    <p> Celem pobrania rozkładu wybranego przewoźnika w zadanym przedziale czasowym, wybierz odpowiednie pola ponizej. Na ten moment rozkładacz pozwala na pobranie jednego rozkładu jednej linii w pojedynczym zapytaniu</p>
+
+    <form id="downloadForm" onsubmit="return handleDownload(event)" method="GET">
+        <div class="form-group">
+            <label for="airline">Linia Lotnicza: </label>
+            <input type="radio" id="LH" name="airline" value="LH" checked />
+            <label for="LH">Lufthansa - LH </label>
+            <input type="radio" id="OS" name="airline" value="OS" />
+            <label for="LH">Austrian Airlines - OS </label>
+            <input type="radio" id="LX" name="airline" value="LX" />
+            <label for="LH">Swiss - LX </label> 
+            <input type="radio" id="SN" name="airline" value="SN" />
+            <label for="LH">Brussels Airlines - SN </label>
+            <input type="radio" id="EN" name="airline" value="EN" />
+            <label for="LH">Air Dolomiti - EN</label>
+        </div>
+        <div class="form-group">
+            <label for="date-from">Data od: </label>
+            <input type="date" name="date-from" id="date-from">
+        </div>
+        <div class="form-group"></div>
+            <label for="date-to">Data do: </label>
+            <input type="date" name="date-to" id="date-to">
+        </div>
+        <div class="form-group"></div>
+            <label for="date-from">Lub wybierz sezon: </label>
+            <input type="radio" id="W24" name="season" value="W24">
+            <label for="W24">W24</label>
+            <input type="radio" id="S25" name="season" value="S25">
+            <label for="S25">S25</label>
+            <input type="radio" id="W25" name="season" value="W25">
+            <label for="W25">W25</label>
+        <div class="form-group">
+            <label for="separation">Odseparuj dni rozkładu</label>
+            <input type="checkbox" id="separate" name="separate" checked />
+        </div>
+        </div>
+        <button type="submit" class="download-btn" id="downloadBtn">Pobierz rozkład</button>
+    </form>
+    
+
+    <script>
+        const seasonDates = {
+            'W24': {
+                from: '2024-10-27',
+                to: '2025-03-29'
+            },
+            'S25': {
+                from: '2025-03-30',
+                to: '2025-10-25'
+            },
+            'W25': {
+                from: '2025-10-26',
+                to: '2026-03-28'
+            }
+        };
+
+        const dateFrom = document.getElementById('date-from');
+        const dateTo = document.getElementById('date-to');
+        const radioButtons = document.querySelectorAll('input[name="season"]');
+
+        radioButtons.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    const season = seasonDates[e.target.value];
+                    dateFrom.value = season.from;
+                    dateTo.value = season.to;
+                }
+            });
+        });
+
+        dateFrom.addEventListener('change', () => {
+            radioButtons.forEach(radio => radio.checked = false);
+        });
+        dateTo.addEventListener('change', ()=>{
+            radioButtons.forEach(radio => radio.checked = false);
+        });
+
+        async function handleDownload(event) {
+            event.preventDefault();
+            
+            const loaderContainer = document.querySelector('.loader-container');
+            const downloadBtn = document.getElementById('downloadBtn');
+            
+            try {
+                // Show loader and disable button
+                loaderContainer.style.display = 'flex';
+                downloadBtn.disabled = true;
+                downloadBtn.textContent = 'Generating CSV...';
+
+                // Make the request
+                const response = await fetch('/csv');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                // Get the filename from the Content-Disposition header if available
+                const contentDisposition = response.headers.get('Content-Disposition');
+                let filename = 'data.csv';
+                if (contentDisposition) {
+                    const filenameMatch = contentDisposition.match(/filename=(.+)/);
+                    if (filenameMatch) {
+                        filename = filenameMatch[1];
+                    }
+                }
+
+                // Convert the response to a blob
+                const blob = await response.blob();
+                
+                // Create a download link and trigger it
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                a.remove();
+
+            } catch (error) {
+                console.error('Download failed:', error);
+                alert('Failed to download the CSV file. Please try again.');
+            } finally {
+                // Hide loader and enable button
+                loaderContainer.style.display = 'none';
+                downloadBtn.disabled = false;
+                downloadBtn.textContent = 'Download CSV';
+            }
+
+            return false;
+        }
+    </script>
+</body>
+</html>

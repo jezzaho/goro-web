@@ -83,7 +83,7 @@ func (f FlightResponse) isApiResponse() {}
 // Process Response
 
 // CreateCSVFromResponse can now write to either a file or http.ResponseWriter
-func CreateCSVFromResponse(writer io.Writer, jsonData []byte, separate bool, isHTTP bool) error {
+func CreateCSVFromResponse(writer io.Writer, jsonData []byte, separate bool) error {
 	var errResponse ErrorResponse
 	err := json.Unmarshal(jsonData, &errResponse)
 	if err != nil {

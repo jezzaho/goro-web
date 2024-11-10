@@ -138,7 +138,7 @@ func PostForAuth() Auth {
 
 	var auth Auth
 	err = json.Unmarshal([]byte(body), &auth)
-	if err != nil {
+	if err != nil || auth.AccessToken == "" {
 		log.Println("Error occured during parsing the data: ", err.Error())
 		return Auth{}
 	}
