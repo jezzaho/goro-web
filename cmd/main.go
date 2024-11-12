@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -33,12 +34,24 @@ func (app *Application) MockHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
+	// From parsing
+	err := r.ParseForm()
+	if err != nil {
+		log.Println("Error during Form Parsing: ", err)
+	}
+	log.Println(r.URL.Query())
+	// Access the query parameters
+	carrier := r.URL.Query().Get("carrier")
+	dateFrom := r.URL.Query().Get("date-from")
+	dateTo := r.URL.Query().Get("date-to")
+	separate := r.URL.Query().Get("separate")
+
+	fmt.Printf("carrier - %s, dateFrom - %s, dateTo - %s, separation - %s", carrier, dateFrom, dateTo, separate)
 
 	auth := internal.PostForAuth()
 	query := internal.GetQueryListForAirline(0, "01NOV24", "05NOV24")
 	data := internal.GetApiData(query, auth)
 	data = internal.FlattenJSON(data)
-	log.Println(string(data))
 	w.Header().Set("Content-Type", "text/csv")
 	w.Header().Set("Content-Disposition", "attachment;filename=data.csv")
 	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
