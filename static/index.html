@@ -7,200 +7,285 @@
 </head>
 <body>
     <style>
-        /* Reset basic styling */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-        }
-
-        /* Basic page layout */
+        @import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap");
+        @import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap");
+        
         body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            background-color: #f4f6f9;
-            color: #333;
-            padding: 20px;
+  
+            background: rgb(63, 78, 127);
+            background: linear-gradient(
+            228deg,
+            rgba(63, 78, 127, 1) 0%,
+            rgba(119, 199, 197, 1) 100%
+          );
+          background-repeat: no-repeat;
+          background-attachment: fixed;
         }
-
-        h1 {
-            margin-bottom: 10px;
-            font-size: 2rem;
-            color: #2c3e50;
+        
+        .title-container {
+          font-family: "Bebas Neue";
+          font-size: 30px;
+          padding-bottom: 0.5em;
         }
-
-        p {
-            margin-bottom: 20px;
-            text-align: center;
-            max-width: 600px;
-            line-height: 1.5;
-            color: #555;
+        .card-container {
+          background: #fff;
+          font-size: 16px;
+          font-family: "Nunito";
+          margin: 0 auto;
+          width: 45%;
+          display: flex;
+          flex-flow: column nowrap;
+          align-items: center;
+          box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
         }
-
-        /* Form styling */
-        form {
-            background: #fff;
-            border-radius: 8px;
-            padding: 20px 25px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            max-width: 400px;
-            width: 100%;
+        .card-container > div {
+          align-self: center;
+          text-align: center;
+          margin: 1em 1em 1em 1em;
         }
-
-        .form-group {
-            margin-bottom: 15px;
+        .introduction-container > div {
+          height: 4rem;
+          margin-bottom: 15px;
         }
-
-        label {
-            font-weight: bold;
-            color: #444;
-            display: inline-block;
-            margin-bottom: 5px;
+        #downloadForm {
+          width: 100%;
+          text-align: center;
         }
-
-        input[type="radio"], input[type="checkbox"] {
-            margin-right: 8px;
+        .carrier-flex-container {
+          display: grid;
+          grid-template-rows: repeat(3, auto);
+          grid-auto-flow: column;
+          justify-content: space-evenly;
+          margin-bottom: 1.5em;
         }
-
-        /* Styling for inputs */
-        input[type="date"] {
-            width: 100%;
-            padding: 8px;
-            font-size: 1rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            transition: border-color 0.3s;
+        .carrier-flex-container > .carrier-element {
+          display: flex;
+          flex-flow: row nowrap;
         }
-
-        input[type="date"]:focus {
-            border-color: #3498db;
-            outline: none;
+        .carrier-flex-container > .carrier-element > input {
+          margin-right: 1em;
         }
-
-        /* Button styling */
-        button[type="submit"] {
-            width: 100%;
-            padding: 10px;
-            font-size: 1rem;
-            color: #fff;
-            background-color: #3498db;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s;
+        
+        .carrier-flex-container input[type="radio"] {
+          opacity: 0;
+          position: fixed;
+          width: 0;
         }
-
-        button[type="submit"]:hover {
-            background-color: #2980b9;
+        .carrier-flex-container label {
+          display: inline-block;
+          color: white;
+          font-weight: 600;
+          background-color: #3f4e7f;
+          padding: 8px 5px;
+          font-family: sans-serif;
+          font-size: 14px;
+          border: 2px solid #444;
+          border-radius: 4px;
+          width: 155px;
+          margin: 0.3em;
         }
-
-        /* Responsive layout */
-        @media (max-width: 500px) {
-            form {
-                padding: 15px 20px;
-            }
-            h1 {
-                font-size: 1.5rem;
-            }
-            p {
-                font-size: 0.9rem;
-            }
+        
+        .carrier-flex-container input[type="radio"]:checked + label {
+          background-color: #77c7c5;
+          border-color: #77c7c5;
+          color: black;
         }
-        .loader-container {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
+        
+        .date-flex-container {
+          display: flex;
+          flex-flow: row nowrap;
+          justify-content: space-around;
+          margin-bottom: 1.5em;
         }
-
-        .loader {
-            width: 48px;
-            height: 48px;
-            border: 5px solid #FFF;
-            border-bottom-color: transparent;
-            border-radius: 50%;
-            animation: rotation 1s linear infinite;
+        .season-flex-container {
+          margin-top: 1em;
+          margin-bottom: 1.5em;
+          display: flex;
+          flex-flow: row nowrap;
+          justify-content: space-evenly;
         }
-
-        @keyframes rotation {
-            0% {
-                transform: rotate(0deg);
-            }
-            100% {
-                transform: rotate(360deg);
-            }
+        .separation-container {
+          margin-bottom: 1.5em;
         }
-
-        .download-btn {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
+        button {
+          margin-bottom: 1.5em;
         }
-
-        .download-btn:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
+        
+        .form-label {
+          font-family: "Bebas Neue";
+          font-size: 24px;
+        }
+        
+        .date-flex-container input[type="date"] {
+          background-color: #3f4e7f;
+          color: white;
+          font-weight: 800;
+          padding: 8px 14px;
+          font-size: 18px;
+          border: none;
+          outline: none;
+          border-radius: 5px;
+        }
+        ::-webkit-calendar-picker-indicator {
+          background-color: #fff;
+          padding: 5px;
+          cursor: pointer;
+          border-radius: 3px;
+        }
+        
+        .season-flex-container input[type="radio"] {
+          opacity: 0;
+          position: fixed;
+          width: 0;
+        }
+        .season-flex-container label {
+          display: inline-block;
+          color: white;
+          font-weight: 600;
+          background-color: #3f4e7f;
+          padding: 8px 5px;
+          font-family: sans-serif;
+          font-size: 14px;
+          border: 2px solid #444;
+          border-radius: 4px;
+          width: 155px;
+          margin: 0.3em;
+        }
+        .season-flex-container input[type="radio"]:checked + label {
+          background-color: #77c7c5;
+          border-color: #77c7c5;
+          color: black;
+        }
+        
+        .separation-container input[type="checkbox"] {
+          opacity: 0;
+          position: fixed;
+          width: 0;
+        }
+        .separation-container label {
+          display: inline-block;
+          color: white;
+          font-weight: 600;
+          background-color: #3f4e7f;
+          padding: 2px 5px;
+          font-family: sans-serif;
+          font-size: 14px;
+          border: 2px solid #444;
+          border-radius: 4px;
+          width: 155px;
+          margin: 0.3em;
+        }
+        .separation-container input[type="checkbox"]:checked + label {
+          background-color: #77c7c5;
+          border-color: #77c7c5;
+          color: black;
+        }
+        button {
+          background-color: #3f4e7f;
+          color: white;
+          font-weight: 900;
+          font-size: 16px;
+          padding: 16px 32px;
+          border-radius: 4px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+        button:hover {
+          animation: pulse 3s infinite;
+        }
+        @keyframes pulse {
+          0% { background-color: #3f4e7f; color: #fff; }
+          50% { background-color: #77c7c5; color: #000; }
+          100% { background-color: #3f4e7f; color: #fff; }
+        }
+        .cc {
+          font-size: 8px;
         }
     </style>
-    <!-- Loading overlay -->
-    <div class="loader-container">
+    <body>
+        <!-- Loading overlay -->
         <div class="loader"></div>
-    </div>
-    <h1>Rozkładacz</h1>
-    <p> Celem pobrania rozkładu wybranego przewoźnika w zadanym przedziale czasowym, wybierz odpowiednie pola ponizej. Na ten moment rozkładacz pozwala na pobranie jednego rozkładu jednej linii w pojedynczym zapytaniu</p>
-
-    <form id="downloadForm" onsubmit="return handleDownload(event)" method="GET">
-        <div class="form-group">
-            <label for="carrier">Linia Lotnicza: </label>
-            <input type="radio" id="LH" name="carrier" value="LH" checked />
-            <label for="LH">Lufthansa - LH </label>
-            <input type="radio" id="OS" name="carrier" value="OS" />
-            <label for="LH">Austrian Airlines - OS </label>
-            <input type="radio" id="LX" name="carrier" value="LX" />
-            <label for="LH">Swiss - LX </label> 
-            <input type="radio" id="SN" name="carrier" value="SN" />
-            <label for="LH">Brussels Airlines - SN </label>
-            <input type="radio" id="EN" name="carrier" value="EN" />
-            <label for="LH">Air Dolomiti - EN</label>
+        <div class="loader-container"> </div>
+        <div class="card-container">
+          <div class="introduction-container">
+            <div class="title-container">
+              <h1>Rozkładacz</h1>
+            </div>
+            <div class="paragraph-container">
+              <p> Celem pobrania rozkładu wybranego przewoźnika w zadanym przedziale czasowym, wybierz odpowiednie pola ponizej. <br> Na ten moment rozkładacz pozwala na pobranie jednego rozkładu jednej linii w pojedynczym zapytaniu. <br> Czas pobrania rozkładu wynosi ok. 20-30 sekund i jest ograniczony przez limit API Lufthansy. </p>
+            </div>
+          </div>
+          <form id="downloadForm" onsubmit="return handleDownload(event)" method="GET">
+            <div class="form-group">
+              <div class="form-label">
+                <label for="carrier">Linia Lotnicza: </label>
+              </div>
+              <div class="carrier-flex-container">
+                <div class="carrier-element">
+                  <input type="radio" id="LH" name="carrier" value="LH" checked />
+                  <label for="LH">Lufthansa - LH </label>
+                </div>
+                <div class="carrier-element">
+                  <input type="radio" id="OS" name="carrier" value="OS" />
+                  <label for="OS">Austrian Airlines</label>
+                </div>
+                <div class="carrier-element">
+                  <input type="radio" id="LX" name="carrier" value="LX" />
+                  <label for="LX">Swiss - LX </label>
+                </div>
+                <div class="carrier-element">
+                  <input type="radio" id="SN" name="carrier" value="SN" />
+                  <label for="SN">Brussels Airlines - SN </label>
+                </div>
+                <div class="carrier-element">
+                  <input type="radio" id="EN" name="carrier" value="EN" />
+                  <label for="EN">Air Dolomiti - EN</label>
+                </div>
+              </div>
+            </div>
+            <div class="form-label">
+              <label for="carrier">Zakres dat: </label>
+            </div>
+            <div class="date-flex-container">
+              <div class="date-element">
+                <label for="date-from"><strong>OD: </strong></label>
+                <input type="date" name="date-from" id="date-from">
+              </div>
+              <div class="date-element">
+                <label for="date-to"><strong>DO: </strong></label>
+                <input type="date" name="date-to" id="date-to">
+              </div>
+            </div>
+            <div class="form-label">
+              <label for="date-from">Lub wybierz sezon: </label>
+            </div>
+            <div class="season-flex-container">
+              <div class="season-element">
+                <input type="radio" id="W24" name="season" value="W24">
+                <label for="W24">W24</label>
+              </div>
+              <div class="season-element">
+                <input type="radio" id="S25" name="season" value="S25">
+                <label for="S25">S25</label>
+              </div>
+              <div class="season-element">
+                <input type="radio" id="W25" name="season" value="W25">
+                <label for="W25">W25</label>
+              </div>
+            </div>
+            <div class="separation-container">
+      
+              <input type="checkbox" id="separate" name="separate" checked />
+              <label for="separate">Odseparuj dni rozkładu</label>
+            </div>
+      
+            <button type="submit" class="download-btn" id="downloadBtn">Pobierz rozkład</button>
+          </form>
+          <div class="cc">
+            <p>Author: Eryk Kiper</p>
+          </div>
         </div>
-        <div class="form-group">
-            <label for="date-from">Data od: </label>
-            <input type="date" name="date-from" id="date-from">
-        </div>
-        <div class="form-group"></div>
-            <label for="date-to">Data do: </label>
-            <input type="date" name="date-to" id="date-to">
-        </div>
-        <div class="form-group"></div>
-            <label for="date-from">Lub wybierz sezon: </label>
-            <input type="radio" id="W24" name="season" value="W24">
-            <label for="W24">W24</label>
-            <input type="radio" id="S25" name="season" value="S25">
-            <label for="S25">S25</label>
-            <input type="radio" id="W25" name="season" value="W25">
-            <label for="W25">W25</label>
-        <div class="form-group">
-            <label for="separation">Odseparuj dni rozkładu</label>
-            <input type="checkbox" id="separate" name="separate" checked />
-        </div>
-        </div>
-        <button type="submit" class="download-btn" id="downloadBtn">Pobierz rozkład</button>
-    </form>
-    
+      </body>
 
     <script>
         const seasonDates = {
