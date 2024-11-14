@@ -30,7 +30,7 @@ func main() {
 	}
 }
 func (app *Application) MockHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
+	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
@@ -39,12 +39,12 @@ func (app *Application) MockHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("Error during Form Parsing: ", err)
 	}
-	log.Println(r.URL.Query())
+	log.Println(r.Form)
 	// Access the query parameters
-	carrier := r.URL.Query().Get("carrier")
-	dateFrom := r.URL.Query().Get("date-from")
-	dateTo := r.URL.Query().Get("date-to")
-	separate := r.URL.Query().Get("separate")
+	carrier := r.FormValue("carrier")
+	dateFrom := r.FormValue("date-from")
+	dateTo := r.FormValue("date-to")
+	separate := r.FormValue("separate")
 
 	fmt.Printf("carrier - %s, dateFrom - %s, dateTo - %s, separation - %s", carrier, dateFrom, dateTo, separate)
 

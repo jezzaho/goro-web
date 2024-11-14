@@ -32,6 +32,7 @@
           font-size: 16px;
           font-family: "Nunito";
           margin: 0 auto;
+          margin-top: 3.5em;
           width: 45%;
           display: flex;
           flex-flow: column nowrap;
@@ -215,7 +216,7 @@
               <p> Celem pobrania rozkładu wybranego przewoźnika w zadanym przedziale czasowym, wybierz odpowiednie pola ponizej. <br> Na ten moment rozkładacz pozwala na pobranie jednego rozkładu jednej linii w pojedynczym zapytaniu. <br> Czas pobrania rozkładu wynosi ok. 20-30 sekund i jest ograniczony przez limit API Lufthansy. </p>
             </div>
           </div>
-          <form id="downloadForm" onsubmit="return handleDownload(event)" method="GET">
+          <form id="downloadForm" onsubmit="return handleDownload(event)" method="POST" enctype="application/x-www-form-urlencoded">
             <div class="form-group">
               <div class="form-label">
                 <label for="carrier">Linia Lotnicza: </label>
@@ -227,7 +228,7 @@
                 </div>
                 <div class="carrier-element">
                   <input type="radio" id="OS" name="carrier" value="OS" />
-                  <label for="OS">Austrian Airlines</label>
+                  <label for="OS">Austrian Airlines - OS</label>
                 </div>
                 <div class="carrier-element">
                   <input type="radio" id="LX" name="carrier" value="LX" />
@@ -274,7 +275,8 @@
               </div>
             </div>
             <div class="separation-container">
-      
+                <!-- Hidden input for unchecked checkbox -->
+              <input type="hidden" name="separate" value="off">
               <input type="checkbox" id="separate" name="separate" checked />
               <label for="separate">Odseparuj dni rozkładu</label>
             </div>
@@ -326,36 +328,49 @@
 
         async function handleDownload(event) {
             event.preventDefault();
-            
+        
             const loaderContainer = document.querySelector('.loader-container');
             const downloadBtn = document.getElementById('downloadBtn');
-            
+        
             try {
                 // Show loader and disable button
                 loaderContainer.style.display = 'flex';
                 downloadBtn.disabled = true;
                 downloadBtn.textContent = 'Generating CSV...';
-
-                // Make the request
-                const response = await fetch('/csv');
+        
+                // Gather form data and serialize it into application/x-www-form-urlencoded format
+                const form = document.getElementById('downloadForm');
+                const formData = new FormData(form);
                 
+                // Convert FormData to URL-encoded string
+                const formDataString = new URLSearchParams(formData).toString();
+        
+                // Make the POST request with the serialized form data
+                const response = await fetch('/csv', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: formDataString,
+                });
+        
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
-
+        
                 // Get the filename from the Content-Disposition header if available
                 const contentDisposition = response.headers.get('Content-Disposition');
                 let filename = 'data.csv';
                 if (contentDisposition) {
-                    const filenameMatch = contentDisposition.match(/filename=(.+)/);
+                    const filenameMatch = contentDisposition.match(/filename="(.+)"/);
                     if (filenameMatch) {
                         filename = filenameMatch[1];
                     }
                 }
-
+        
                 // Convert the response to a blob
                 const blob = await response.blob();
-                
+        
                 // Create a download link and trigger it
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -365,7 +380,7 @@
                 a.click();
                 window.URL.revokeObjectURL(url);
                 a.remove();
-
+        
             } catch (error) {
                 console.error('Download failed:', error);
                 alert('Failed to download the CSV file. Please try again.');
@@ -375,7 +390,7 @@
                 downloadBtn.disabled = false;
                 downloadBtn.textContent = 'Download CSV';
             }
-
+        
             return false;
         }
     </script>
