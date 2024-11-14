@@ -11,7 +11,8 @@ import (
 func FlattenJSON(data []byte) []byte {
 	return bytes.Replace(data, []byte("]["), []byte(","), -1)
 }
-func SSIMtoDate(s string) string {
+
+func getMonthMap() map[string]string {
 	var monthMap = make(map[string]string)
 	monthMap["JAN"] = "01"
 	monthMap["FEB"] = "02"
@@ -26,6 +27,12 @@ func SSIMtoDate(s string) string {
 	monthMap["NOV"] = "11"
 	monthMap["DEC"] = "12"
 
+	return monthMap
+}
+
+func SSIMtoDate(s string) string {
+	monthMap := getMonthMap()
+
 	var dateString string
 
 	length := len(s)
@@ -38,6 +45,32 @@ func SSIMtoDate(s string) string {
 		dateString += "20" + s[5:] + "-" + monthMap[s[2:5]] + "-" + s[:2]
 	}
 	return dateString
+}
+
+func DateToSSIM(s string) string {
+	// FORMAT
+	// YYYY-MM-DD
+	year := s[2:4]
+	month := s[5:7]
+	day := s[8:]
+
+	var monthStr string
+	foundFlag := false
+	monthMap := getMonthMap()
+	// Iterate over the map to find the key for the value
+	for key, value := range monthMap {
+		if value == month {
+			monthStr = key
+			foundFlag = true
+			break
+		}
+	}
+	if !foundFlag {
+		panic("DATETOSSIM ERROR FIX IT LATER")
+	}
+	return day + monthStr + year
+	// ERROR CHECK HELLO XD
+
 }
 
 // 845 - 840 (14) = 5

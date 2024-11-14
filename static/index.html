@@ -276,7 +276,6 @@
             </div>
             <div class="separation-container">
                 <!-- Hidden input for unchecked checkbox -->
-              <input type="hidden" name="separate" value="off">
               <input type="checkbox" id="separate" name="separate" checked />
               <label for="separate">Odseparuj dni rozkładu</label>
             </div>
@@ -336,7 +335,7 @@
                 // Show loader and disable button
                 loaderContainer.style.display = 'flex';
                 downloadBtn.disabled = true;
-                downloadBtn.textContent = 'Generating CSV...';
+                downloadBtn.textContent = 'Pobieranie pliku...';
         
                 // Gather form data and serialize it into application/x-www-form-urlencoded format
                 const form = document.getElementById('downloadForm');
@@ -383,12 +382,12 @@
         
             } catch (error) {
                 console.error('Download failed:', error);
-                alert('Failed to download the CSV file. Please try again.');
+                alert('Nie udało się pobrać pliku. Spróbuj ponownie.');
             } finally {
                 // Hide loader and enable button
                 loaderContainer.style.display = 'none';
                 downloadBtn.disabled = false;
-                downloadBtn.textContent = 'Download CSV';
+                downloadBtn.textContent = 'POBIERZ ROZKŁAD';
             }
         
             return false;
