@@ -204,3 +204,83 @@ func operatorToICAO(operator string) string {
 		return operatorMap[operator]
 	}
 }
+
+// Querying for specific Airline should output specyfic Querylist
+// Code: 0 - LH || 1 - OS || 2 - LX || 3 - SN || 4 - EN
+// beg && end format in SSIM date format DDMMMYY eg. 15MAR25
+func GetQueryListForAirline(code int, beg, end string) (QueryList []ApiQuery) {
+	switch code {
+	case 0:
+		return []ApiQuery{
+			{
+				Airline:         "LH",
+				StartDate:       beg,
+				EndDate:         end,
+				DaysOfOperation: "1234567",
+				TimeMode:        "LT",
+				Origin:          "KRK",
+				Destination:     "FRA",
+			},
+			{
+				Airline:         "LH",
+				StartDate:       beg,
+				EndDate:         end,
+				DaysOfOperation: "1234567",
+				TimeMode:        "LT",
+				Origin:          "KRK",
+				Destination:     "MUC",
+			},
+		}
+	case 1:
+		return []ApiQuery{
+			{
+				Airline:         "OS",
+				StartDate:       beg,
+				EndDate:         end,
+				DaysOfOperation: "1234567",
+				TimeMode:        "LT",
+				Origin:          "KRK",
+				Destination:     "VIE",
+			},
+		}
+	case 2:
+		return []ApiQuery{
+			{
+				Airline:         "LX",
+				StartDate:       beg,
+				EndDate:         end,
+				DaysOfOperation: "1234567",
+				TimeMode:        "LT",
+				Origin:          "KRK",
+				Destination:     "ZRH",
+			},
+		}
+	case 3:
+		return []ApiQuery{
+			{
+				Airline:         "SN",
+				StartDate:       beg,
+				EndDate:         end,
+				DaysOfOperation: "1234567",
+				TimeMode:        "LT",
+				Origin:          "KRK",
+				Destination:     "BRU",
+			},
+		}
+	case 4:
+		return []ApiQuery{
+			{
+				Airline:         "EN",
+				StartDate:       beg,
+				EndDate:         end,
+				DaysOfOperation: "1234567",
+				TimeMode:        "LT",
+				Origin:          "KRK",
+				Destination:     "MUC",
+			},
+		}
+		// Change default?
+	default:
+		return []ApiQuery{}
+	}
+}

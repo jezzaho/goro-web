@@ -83,13 +83,15 @@ func getApiResponse(auth Auth, query ApiQuery) string {
 	request.Header.Add("Accept", "application/json")
 	authStr := "Bearer " + auth.AccessToken
 	request.Header.Add("Authorization", authStr)
-
+	log.Println("Data request send.")
 	response, err := client.Do(request)
 	if err != nil {
 		log.Println("Error occured during GET request from LH API: ", err.Error())
 		return ""
-	}
+	}	
+
 	defer response.Body.Close()
+	defer log.Println("Data request closed.")
 
 	// Read the response Getenv
 	body, err := io.ReadAll(response.Body)
@@ -123,11 +125,13 @@ func PostForAuth() Auth {
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
 	resp, err := client.Do(req)
+	log.Println("Auth Request send.")
 	if err != nil {
 		log.Println("Error occured during request: ", err.Error())
 		return Auth{}
 	}
 	defer resp.Body.Close()
+	log.Println("Auth Request closed.")
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Println("Error occured during reading response: ", err.Error())
@@ -146,82 +150,7 @@ func PostForAuth() Auth {
 	return auth
 }
 
-// Querying for specific Airline should output specyfic Querylist
-// Code: 0 - LH || 1 - OS || 2 - LX || 3 - SN || 4 - EN
-// beg && end format in SSIM date format DDMMMYY eg. 15MAR25
-func GetQueryListForAirline(code int, beg, end string) (QueryList []ApiQuery) {
-	switch code {
-	case 0:
-		return []ApiQuery{
-			{
-				Airline:         "LH",
-				StartDate:       beg,
-				EndDate:         end,
-				DaysOfOperation: "1234567",
-				TimeMode:        "LT",
-				Origin:          "KRK",
-				Destination:     "FRA",
-			},
-			{
-				Airline:         "LH",
-				StartDate:       beg,
-				EndDate:         end,
-				DaysOfOperation: "1234567",
-				TimeMode:        "LT",
-				Origin:          "KRK",
-				Destination:     "MUC",
-			},
-		}
-	case 1:
-		return []ApiQuery{
-			{
-				Airline:         "OS",
-				StartDate:       beg,
-				EndDate:         end,
-				DaysOfOperation: "1234567",
-				TimeMode:        "LT",
-				Origin:          "KRK",
-				Destination:     "VIE",
-			},
-		}
-	case 2:
-		return []ApiQuery{
-			{
-				Airline:         "LX",
-				StartDate:       beg,
-				EndDate:         end,
-				DaysOfOperation: "1234567",
-				TimeMode:        "LT",
-				Origin:          "KRK",
-				Destination:     "ZRH",
-			},
-		}
-	case 3:
-		return []ApiQuery{
-			{
-				Airline:         "SN",
-				StartDate:       beg,
-				EndDate:         end,
-				DaysOfOperation: "1234567",
-				TimeMode:        "LT",
-				Origin:          "KRK",
-				Destination:     "BRU",
-			},
-		}
-	case 4:
-		return []ApiQuery{
-			{
-				Airline:         "EN",
-				StartDate:       beg,
-				EndDate:         end,
-				DaysOfOperation: "1234567",
-				TimeMode:        "LT",
-				Origin:          "KRK",
-				Destination:     "MUC",
-			},
-		}
-		// Change default?
-	default:
-		return []ApiQuery{}
-	}
-}
+
+
+
+

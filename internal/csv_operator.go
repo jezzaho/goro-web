@@ -90,7 +90,7 @@ func CreateCSVFromResponse(writer io.Writer, jsonData []byte, separate bool) err
 		if err.Error() == "invalid character '{' after top-level value" {
 			log.Println("INV_CHAR: '{'\n", string(jsonData))
 		}
-		log.Println("ErrorResponse not valid here. ", err.Error())
+
 	}
 
 	var flightResponses []FlightResponse
