@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Rozkładacz</title>
 </head>
 <body>
@@ -24,16 +24,16 @@
         
         .title-container {
           font-family: "Bebas Neue";
-          font-size: 30px;
-          padding-bottom: 0.5em;
+          font-size: 5vh;
+          padding-bottom: 5vh;
         }
         .card-container {
           background: #fff;
-          font-size: 16px;
+          font-size: 1.6vh;
           font-family: "Nunito";
           margin: 0 auto;
           margin-top: 3.5em;
-          width: 45%;
+          width: 80vw;
           display: flex;
           flex-flow: column nowrap;
           align-items: center;
@@ -42,11 +42,11 @@
         .card-container > div {
           align-self: center;
           text-align: center;
-          margin: 1em 1em 1em 1em;
+          
         }
         .introduction-container > div {
           height: 4rem;
-          margin-bottom: 15px;
+          margin-bottom: 5vh;
         }
         #downloadForm {
           width: 100%;
@@ -58,6 +58,7 @@
           grid-auto-flow: column;
           justify-content: space-evenly;
           margin-bottom: 1.5em;
+          align-items: center;
         }
         .carrier-flex-container > .carrier-element {
           display: flex;
@@ -77,13 +78,18 @@
           color: white;
           font-weight: 600;
           background-color: #3f4e7f;
-          padding: 8px 5px;
+          padding-top: 3%;
+          padding-left: 0.2vw;
+          padding-right: 0.2vw;
           font-family: sans-serif;
-          font-size: 14px;
-          border: 2px solid #444;
+          font-size: 1.5vh;
+          border: 1px solid #142ebd;
           border-radius: 4px;
-          width: 155px;
-          margin: 0.3em;
+          width: 30vw;
+          height: 3vh;
+          margin: 0.6vh;
+          align-items: center;
+          justify-content: center;
         }
         
         .carrier-flex-container input[type="radio"]:checked + label {
@@ -97,6 +103,10 @@
           flex-flow: row nowrap;
           justify-content: space-around;
           margin-bottom: 1.5em;
+        }
+        .date-flex-container label {
+        
+          padding-top: 3%;
         }
         .season-flex-container {
           margin-top: 1em;
@@ -114,7 +124,8 @@
         
         .form-label {
           font-family: "Bebas Neue";
-          font-size: 24px;
+          font-size: 3vh;
+          margin-bottom: 1vh;
         }
         
         .date-flex-container input[type="date"] {
@@ -122,10 +133,12 @@
           color: white;
           font-weight: 800;
           padding: 8px 14px;
-          font-size: 18px;
+          font-size: 1.6vw;
           border: none;
           outline: none;
           border-radius: 5px;
+          width: 15vw;
+          margin: 0.6vh;
         }
         ::-webkit-calendar-picker-indicator {
           background-color: #fff;
@@ -144,13 +157,14 @@
           color: white;
           font-weight: 600;
           background-color: #3f4e7f;
-          padding: 8px 5px;
+          padding-top: 3%;
+          padding-bottom: 3%;
           font-family: sans-serif;
-          font-size: 14px;
+          font-size: 1.6vh;
           border: 2px solid #444;
           border-radius: 4px;
-          width: 155px;
-          margin: 0.3em;
+          width: 20vw;
+          margin: 0.6vh;
   
         }
         .season-flex-container input[type="radio"]:checked + label {
@@ -169,13 +183,15 @@
           color: white;
           font-weight: 600;
           background-color: #3f4e7f;
-          padding: 2px 5px;
+          padding-top: 1.25%;
+          padding-bottom: 1.25%;
           font-family: sans-serif;
-          font-size: 14px;
+          font-size: 1.6vh;
           border: 2px solid #444;
           border-radius: 4px;
-          width: 155px;
-          margin: 0.3em;
+          width: 25vw;
+          height: 2.5vh;
+          margin: 0.6vh;
         
         }
         .separation-container input[type="checkbox"]:checked + label {
@@ -204,6 +220,8 @@
         .cc {
           font-size: 8px;
         }
+        
+        
     </style>
     <body>
         <!-- Loading overlay -->
@@ -252,11 +270,15 @@
             <div class="date-flex-container">
               <div class="date-element">
                 <label for="date-from"><strong>OD: </strong></label>
-                <input type="date" name="date-from" id="date-from">
+                <input type="date" name="date-from" id="date-from" required="required"
+                aria-required="true"
+                oninvalid="this.setCustomValidity('Proszę wybrać datę początkową')"
+                oninput="this.setCustomValidity('')"
+                value="">
               </div>
               <div class="date-element">
                 <label for="date-to"><strong>DO: </strong></label>
-                <input type="date" name="date-to" id="date-to">
+                <input type="date" name="date-to" id="date-to" required>
               </div>
             </div>
             <div class="form-label">
@@ -327,6 +349,34 @@
 
         async function handleDownload(event) {
           event.preventDefault();
+      
+          // Get date inputs and validate them first
+          const dateFrom = document.getElementById('date-from');
+          const dateTo = document.getElementById('date-to');
+          
+          // Reset any previous validation messages
+          dateFrom.setCustomValidity('');
+          dateTo.setCustomValidity('');
+          
+          // Check if dates are empty
+          if (!dateFrom.value || !dateTo.value) {
+              if (!dateFrom.value) {
+                  dateFrom.setCustomValidity('Proszę wybrać datę początkową');
+                  dateFrom.reportValidity();
+              }
+              if (!dateTo.value) {
+                  dateTo.setCustomValidity('Proszę wybrać datę końcową');
+                  dateTo.reportValidity();
+              }
+              return false;
+          }
+          
+          // Validate date range
+          if (dateTo.value < dateFrom.value) {
+              dateTo.setCustomValidity('Data końcowa nie może być wcześniejsza niż początkowa');
+              dateTo.reportValidity();
+              return false;
+          }
       
           const loaderContainer = document.querySelector('.loader-container');
           const downloadBtn = document.getElementById('downloadButton');

@@ -31,6 +31,7 @@ func (app *Application) MockHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Carrier check for Query
 	var carrierNumber int
+
 	switch carrier {
 	case "LH":
 		carrierNumber = 0
@@ -56,11 +57,17 @@ func (app *Application) MockHandler(w http.ResponseWriter, r *http.Request) {
 		separateBool = true
 	}
 	log.Println(separateBool)
+
 	auth := internal.PostForAuth()
 	query := internal.GetQueryListForAirline(carrierNumber, dateFromSSIM, dateToSSIM)
+	progressChan <- 33
 	data := internal.GetApiData(query, auth)
+	progressChan <- 66
 	data = internal.FlattenJSON(data)
+	progressChan <- 100
 	w.Header().Set("Content-Type", "text/csv")
+
+	// Headerss
 
 	currentDate := time.Now().Format("20060102")
 	filename := fmt.Sprintf("%s_%s.csv", currentDate, carrier)
@@ -75,6 +82,7 @@ func (app *Application) MockHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error creating CSV: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
+
 }
 
 func (app *Application) IndexHandler(w http.ResponseWriter, r *http.Request) {
@@ -97,8 +105,19 @@ func (app *Application) ProgressStreamHandler(w http.ResponseWriter, r *http.Req
 		http.Error(w, "Streaming unsupported", http.StatusInternalServerError)
 		return
 	}
-	progress := 31
-	fmt.Fprintf(w, "data: %d\n\n", progress)
-	flusher.Flush()
+	clientChan := make(chan int)
+	go func() {
+		for progress := range progressChan {
+			clientChan <- progress
+			if progress >= 100 {
+				close(clientChan)
+				return
+			}
+		}
+	}()
+	for progress := range clientChan {
+		fmt.Fprintf(w, "data: %d\n\n", progress)
+		flusher.Flush()
+	}
 
 }

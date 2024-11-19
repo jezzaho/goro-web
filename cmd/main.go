@@ -77,7 +77,7 @@ func (s *Server) Start() error {
 		if err := s.server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			s.errors <- err
 		}
-		s.logger.Info("Server started on port ", s.config.port)
+
 	}()
 
 	return nil
@@ -122,8 +122,7 @@ func main() {
 		srv.logger.Error("Error during server startup: ", err)
 		os.Exit(1)
 	}
-
-	srv.logger.Info("Server started on port: ", srv.config.port)
+	srv.logger.Info("Server started on port ", srv.config.port)
 
 	sig := <-signalChan
 	srv.logger.Info("Received shutdown signal: ", sig)
