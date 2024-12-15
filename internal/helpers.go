@@ -284,3 +284,42 @@ func GetQueryListForAirline(code int, beg, end string) (QueryList []ApiQuery) {
 		return []ApiQuery{}
 	}
 }
+
+func AreValidForMerge(record1, record2 []string) (error, bool) {
+	columnsToCompare := []int{0, 1, 2, 3, 4, 5, 8, 9, 10, 11}
+
+	for _, col := range columnsToCompare {
+		if record1[col] != record2[col] {
+			return nil, false
+		}
+	}
+	// Compare dates
+	record1To := record1[7]
+	record2From := record2[6]
+
+	dateOne, err := time.Parse("02.01.2006", record1To)
+	if err != nil {
+		return err, false
+	}
+	dateOne = dateOne.AddDate(0, 0, 1)
+
+	dateTwo, err := time.Parse("02.01.2006", record2From)
+	if err != nil {
+		return err, false
+	}
+
+	if dateOne.Compare(dateTwo) == 0 {
+		return nil, true
+	}
+	return nil, false
+
+}
+
+func PerformMerge(record1, record2 []string) []string {
+	var temp []string
+	copy(temp, record1)
+
+	temp[7] = record2[7]
+
+	return temp
+}

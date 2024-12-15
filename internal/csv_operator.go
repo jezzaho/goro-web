@@ -101,6 +101,7 @@ func CreateCSVFromResponse(writer io.Writer, jsonData []byte, separate bool) err
 		}
 		return err
 	}
+	// Merge Possible Flights in FlightResponses
 
 	// Create a CSV writer using the provided writer
 	csvWriter := csv.NewWriter(writer)
