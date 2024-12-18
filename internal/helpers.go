@@ -1,7 +1,6 @@
 package internal
 
 import (
-	"bytes"
 	"log"
 	"sort"
 	"strconv"
@@ -11,7 +10,22 @@ import (
 )
 
 func FlattenJSON(data []byte) []byte {
-	return bytes.Replace(data, []byte("]["), []byte(","), -1)
+	// Convert input to string for easier manipulation
+	strData := string(data)
+
+	// Remove all empty arrays `[]` and replace them with a comma
+	strData = strings.ReplaceAll(strData, "[]", ",")
+
+	// Replace all occurrences of `][` with a comma
+	strData = strings.ReplaceAll(strData, "][", ",")
+
+	// Clean up any leftover double commas `,,` caused by replacements
+	strData = strings.ReplaceAll(strData, ",,", ",")
+
+	// Trim leading and trailing commas if they exist
+	strData = strings.Trim(strData, ",")
+
+	return []byte(strData)
 }
 
 func getMonthMap() map[string]string {
@@ -312,7 +326,6 @@ func AreValidForMerge(record1, record2 []string) (bool, error) {
 	}
 
 	if dateOne.Compare(dateTwo) == 0 {
-		log.Printf("Valid because: %v and %v\n", dateOne, dateTwo)
 		return true, nil
 	}
 	return false, nil
