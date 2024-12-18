@@ -76,6 +76,7 @@ func (app *Application) MockHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Pragma", "no-cache")
 	w.Header().Set("Expires", "0")
 
+	fmt.Printf("DATA: \n%v+", string(data))
 	// Use the modified CreateCSVFromResponse function
 	if err := internal.CreateCSVFromResponse(w, data, separateBool); err != nil {
 		log.Printf("Error creating CSV: %v", err)

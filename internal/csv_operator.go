@@ -4,9 +4,8 @@ package internal
 import (
 	"encoding/csv"
 	"encoding/json"
+	"fmt"
 	"io"
-	"log"
-	"strconv"
 )
 
 // ERROR MESSAGES
@@ -84,24 +83,11 @@ func (f FlightResponse) isApiResponse() {}
 
 // CreateCSVFromResponse can now write to either a file or http.ResponseWriter
 func CreateCSVFromResponse(writer io.Writer, jsonData []byte, separate bool) error {
-	var errResponse ErrorResponse
-	err := json.Unmarshal(jsonData, &errResponse)
-	if err != nil {
-		if err.Error() == "invalid character '{' after top-level value" {
-			log.Println("INV_CHAR: '{'\n", string(jsonData))
-		}
-
-	}
-
 	var flightResponses []FlightResponse
-	err = json.Unmarshal(jsonData, &flightResponses)
+	err := json.Unmarshal(jsonData, &flightResponses)
 	if err != nil {
-		if err.Error() == "invalid character '{' after top-level value" {
-			log.Println("INV_CHAR: '{'\n", string(jsonData))
-		}
 		return err
 	}
-	// Merge Possible Flights in FlightResponses
 
 	// Create a CSV writer using the provided writer
 	csvWriter := csv.NewWriter(writer)
@@ -114,44 +100,52 @@ func CreateCSVFromResponse(writer io.Writer, jsonData []byte, separate bool) err
 		return err
 	}
 
-	// Write data to CSV
+	var csvData [][]string
+
+	// Write data to CSV with merging
 	for _, d := range flightResponses {
-		flightNumberWrite := strconv.Itoa(d.FlightNumber)
-		startDateWrite := SSIMtoDate(d.PeriodOfOperationLT.StartDate)
-		endDateWrite := SSIMtoDate(d.PeriodOfOperationLT.EndDate)
-		startTimeWrite := NumberToTime(d.Legs[0].AircraftDepartureTimeLT)
-		endTimeWrite := NumberToTime(d.Legs[0].AircraftArrivalTimeLT)
-		daysOfOperationWrite := DaysOfOperation(d.PeriodOfOperationLT.DaysOfOperation)
-		operator := operatorToICAO(d.Legs[0].AircraftOwner)
+		csvData = append(csvData, convertFlightResponseToCSVRows(d)...)
 
-		row := []string{
-			d.Legs[0].Origin,
-			d.Legs[0].Destination,
-			d.Airline,
-			flightNumberWrite,
-			startTimeWrite,
-			endTimeWrite,
-			startDateWrite,
-			endDateWrite,
-			daysOfOperationWrite,
-			d.Legs[0].AircraftType,
-			operator,
-			d.Legs[0].ServiceType,
+		// Sort Records by Od Field.
+		// mergedData, err := MergeRecords(csvData)
+		// if err != nil {
+		// 	return err
+		// }
+	}
+	fmt.Printf(" CSVDATA: %v", csvData)
+	var separatedData [][]string
+	if separate {
+		for _, d := range csvData {
+			rows := SeparateDays(d)
+			separatedData = append(separatedData, rows...)
 		}
+	}
 
-		if separate {
-			rows := SeparateDays(row)
-			for _, separatedRow := range rows {
-				if err := csvWriter.Write(separatedRow); err != nil {
-					return err
-				}
+	SortRecordsByDateCol(separatedData, 6)
+	SortRecordsByDateCol(csvData, 6)
+	fmt.Printf("LEN: %v ", len(separatedData))
+	if separate {
+		separatedData, err = MergeRecords(separatedData)
+		if err != nil {
+			return err
+		}
+		for _, row := range separatedData {
+			if err := csvWriter.Write(row); err != nil {
+				return err
 			}
-		} else {
+		}
+	} else {
+		csvData, err = MergeRecords(csvData)
+		if err != nil {
+			return err
+		}
+		for _, row := range csvData {
 			if err := csvWriter.Write(row); err != nil {
 				return err
 			}
 		}
 	}
+
 
 	return nil
 }

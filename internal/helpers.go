@@ -2,6 +2,8 @@ package internal
 
 import (
 	"bytes"
+	"log"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -170,7 +172,7 @@ func performSeparation(row []string, d []int) [][]string {
 		if v > t_day_n {
 			m = (v - t_day_n) - 7
 		} else {
-			m = t_day_n - v
+			m = v - t_day_n
 		}
 
 		cpy[8] = strings.Repeat(".", v-1) + strconv.Itoa(v) + strings.Repeat(".", 7-v)
@@ -285,41 +287,128 @@ func GetQueryListForAirline(code int, beg, end string) (QueryList []ApiQuery) {
 	}
 }
 
-func AreValidForMerge(record1, record2 []string) (error, bool) {
+func AreValidForMerge(record1, record2 []string) (bool, error) {
 	columnsToCompare := []int{0, 1, 2, 3, 4, 5, 8, 9, 10, 11}
 
 	for _, col := range columnsToCompare {
 		if record1[col] != record2[col] {
-			return nil, false
+
+			return false, nil
 		}
 	}
 	// Compare dates
 	record1To := record1[7]
 	record2From := record2[6]
 
-	dateOne, err := time.Parse("02.01.2006", record1To)
+	dateOne, err := time.Parse("2006-01-02", record1To)
 	if err != nil {
-		return err, false
+		return false, err
 	}
-	dateOne = dateOne.AddDate(0, 0, 1)
+	dateOne = dateOne.AddDate(0, 0, 7)
 
-	dateTwo, err := time.Parse("02.01.2006", record2From)
+	dateTwo, err := time.Parse("2006-01-02", record2From)
 	if err != nil {
-		return err, false
+		return false, err
 	}
 
 	if dateOne.Compare(dateTwo) == 0 {
-		return nil, true
+		log.Printf("Valid because: %v and %v\n", dateOne, dateTwo)
+		return true, nil
 	}
-	return nil, false
+	return false, nil
 
 }
 
 func PerformMerge(record1, record2 []string) []string {
-	var temp []string
+	temp := make([]string, len(record1))
 	copy(temp, record1)
 
 	temp[7] = record2[7]
 
 	return temp
+}
+
+// Helper function to convert FlightResponse to CSV rows
+func convertFlightResponseToCSVRows(d FlightResponse) [][]string {
+	var csvRows [][]string
+
+	flightNumberWrite := strconv.Itoa(d.FlightNumber)
+	startTimeWrite := NumberToTime(d.Legs[0].AircraftDepartureTimeLT)
+	endTimeWrite := NumberToTime(d.Legs[0].AircraftArrivalTimeLT)
+	startDateWrite := SSIMtoDate(d.PeriodOfOperationLT.StartDate)
+	endDateWrite := SSIMtoDate(d.PeriodOfOperationLT.EndDate)
+	daysOfOperationWrite := DaysOfOperation(d.PeriodOfOperationLT.DaysOfOperation)
+	operator := operatorToICAO(d.Legs[0].AircraftOwner)
+
+	row := []string{
+		d.Legs[0].Origin,
+		d.Legs[0].Destination,
+		d.Airline,
+		flightNumberWrite,
+		startTimeWrite,
+		endTimeWrite,
+		startDateWrite,
+		endDateWrite,
+		daysOfOperationWrite,
+		d.Legs[0].AircraftType,
+		operator,
+		d.Legs[0].ServiceType,
+	}
+
+	csvRows = append(csvRows, row)
+	return csvRows
+}
+
+func MergeRecords(records [][]string) ([][]string, error) {
+	if len(records) <= 1 {
+		return records, nil
+	}
+
+	mergedRecords := [][]string{} // Resulting list of merged records
+	merged := make(map[int]bool)  // Tracks indices of merged records
+
+	for i := 0; i < len(records); i++ {
+		if merged[i] { // Skip already merged records
+			continue
+		}
+
+		currentRecord := records[i]
+		for j := 0; j < len(records); j++ {
+			if i == j || merged[j] { // Skip self and already merged records
+				continue
+			}
+
+			// Check if the records can be merged
+			validFlag, err := AreValidForMerge(currentRecord, records[j])
+			if err != nil {
+				return nil, err
+			}
+
+			if validFlag {
+				currentRecord = PerformMerge(currentRecord, records[j]) // Merge the records
+				merged[j] = true                                        // Mark the merged record
+			}
+		}
+
+		// Add the merged record to the result
+		mergedRecords = append(mergedRecords, currentRecord)
+	}
+
+	return mergedRecords, nil
+}
+
+func SortRecordsByDateCol(data [][]string, columnIndex int) {
+	sort.Slice(data, func(i, j int) bool {
+		dateI, errI := time.Parse("2006-01-02", data[i][columnIndex])
+		dateJ, errJ := time.Parse("2006-01-02", data[j][columnIndex])
+
+		// If parsing fails, maintain original order
+		if errI != nil || errJ != nil {
+			log.Printf("Parsing for Sorting Failed because: %v and %v", errI, errJ)
+			return false
+		}
+
+		// Compare dates
+		return dateI.Before(dateJ)
+	})
 }
