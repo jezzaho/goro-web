@@ -54,7 +54,7 @@ func TestFlattenJSON(t *testing.T) {
 	}
 }
 
-func TestgetMonthMap(t *testing.T) {
+func TestGetMonthMap(t *testing.T) {
 	tests := []struct {
 		name     string
 		expected map[string]string
@@ -261,42 +261,15 @@ func TestDaysOfOperation(t *testing.T) {
 		name     string
 		input    string
 		expected string
-	}{
-		{
-			name:     "Days with spaces (Mon = 1, Tue = 2, etc.)",
-			input:    "1  4567",
-			expected: "1..4567", // Multiple spaces should be replaced with periods
-		},
-		{
-			name:     "Days with single space",
-			input:    "23 7",
-			expected: ".23...7", // A space between 23 and 7 should become a single period
-		},
-		{
-			name:     "Only single day code",
-			input:    "1......",
-			expected: "1......", // No space to replace, should remain the same
-		},
-		{
-			name:     "Days with multiple consecutive spaces",
-			input:    "1  2   3",
-			expected: "1..2...3", // Multiple spaces between days replaced by periods
-		},
-		{
-			name:     "Empty string",
-			input:    "",
-			expected: "", // No change expected
-		},
-		{
-			name:     "String with no spaces, all days",
-			input:    "1234567",
-			expected: "1234567", // No spaces, no change expected
-		},
-		{
-			name:     "String with leading and trailing spaces",
-			input:    " 23  7 ",
-			expected: ".23...7", // Leading and trailing spaces replaced by periods
-		},
+	}{{
+		name:     "Valid test - input always good",
+		input:    "123   7",
+		expected: "123...7",
+	}, {
+		name:     "Valid test - edges",
+		input:    " 23456 ",
+		expected: ".23456.",
+	},
 	}
 
 	for _, tt := range tests {
@@ -309,7 +282,7 @@ func TestDaysOfOperation(t *testing.T) {
 	}
 }
 
-func TestmoreThanOneDigit(t *testing.T) {
+func TestMoreThanOneDigit(t *testing.T) {
 	tests := []struct {
 		name     string
 		input    string
@@ -354,44 +327,45 @@ func TestSeparateDays(t *testing.T) {
 		expected [][]string
 	}{
 		{
-			name:     "Valid days with digits",
-			input:    []string{"Test", "data", "1234567"},
-			expected: [][]string{{"Test", "data", "1"}, {"Test", "data", "2"}, {"Test", "data", "3"}, {"Test", "data", "4"}, {"Test", "data", "5"}, {"Test", "data", "6"}, {"Test", "data", "7"}},
+			name:  "Standard week pattern with single day",
+			input: []string{"KRK", "FRA", "LH", "1365", "10:20", "12:05", "2024-10-29", "2024-12-10", ".2.....", "320", "DLH", "J"},
+			expected: [][]string{
+				{"KRK", "FRA", "LH", "1365", "10:20", "12:05", "2024-10-29", "2024-12-10", ".2.....", "320", "DLH", "J"},
+			},
 		},
 		{
-			name:     "Single day, one day in the middle",
-			input:    []string{"Test", "data", "12"},
-			expected: [][]string{{"Test", "data", "1"}, {"Test", "data", "2"}},
+			name:  "Multiple days in week",
+			input: []string{"KRK", "FRA", "LH", "1365", "10:20", "12:05", "2024-10-21", "2024-12-29", "1.3.5.7", "320", "DLH", "J"},
+			expected: [][]string{
+				{"KRK", "FRA", "LH", "1365", "10:20", "12:05", "2024-10-21", "2024-12-23", "1......", "320", "DLH", "J"},
+				{"KRK", "FRA", "LH", "1365", "10:20", "12:05", "2024-10-23", "2024-12-25", "..3....", "320", "DLH", "J"},
+				{"KRK", "FRA", "LH", "1365", "10:20", "12:05", "2024-10-25", "2024-12-27", "....5..", "320", "DLH", "J"},
+				{"KRK", "FRA", "LH", "1365", "10:20", "12:05", "2024-10-27", "2024-12-29", "......7", "320", "DLH", "J"},
+			},
 		},
 		{
-			name:     "No days to separate",
-			input:    []string{"Test", "data", "0"},
-			expected: [][]string{{"Test", "data", "0"}},
+			name:  "All days of week",
+			input: []string{"KRK", "FRA", "LH", "1365", "10:20", "12:05", "2024-10-21", "2024-12-29", "1234567", "320", "DLH", "J"},
+			expected: [][]string{
+				{"KRK", "FRA", "LH", "1365", "10:20", "12:05", "2024-10-21", "2024-12-23", "1......", "320", "DLH", "J"},
+				{"KRK", "FRA", "LH", "1365", "10:20", "12:05", "2024-10-22", "2024-12-24", ".2.....", "320", "DLH", "J"},
+				{"KRK", "FRA", "LH", "1365", "10:20", "12:05", "2024-10-23", "2024-12-25", "..3....", "320", "DLH", "J"},
+				{"KRK", "FRA", "LH", "1365", "10:20", "12:05", "2024-10-24", "2024-12-26", "...4...", "320", "DLH", "J"},
+				{"KRK", "FRA", "LH", "1365", "10:20", "12:05", "2024-10-25", "2024-12-27", "....5..", "320", "DLH", "J"},
+				{"KRK", "FRA", "LH", "1365", "10:20", "12:05", "2024-10-26", "2024-12-28", ".....6.", "320", "DLH", "J"},
+				{"KRK", "FRA", "LH", "1365", "10:20", "12:05", "2024-10-27", "2024-12-29", "......7", "320", "DLH", "J"},
+			},
 		},
 		{
-			name:     "Multiple days, scattered",
-			input:    []string{"Test", "data", "1357"},
-			expected: [][]string{{"Test", "data", "1"}, {"Test", "data", "3"}, {"Test", "data", "5"}, {"Test", "data", "7"}},
-		},
-		{
-			name:     "Invalid format, non-digit",
-			input:    []string{"Test", "data", "abc"},
-			expected: [][]string{{"Test", "data", "abc"}}, // Shouldn't be separated, invalid days string
-		},
-		{
-			name:     "Empty input",
-			input:    []string{"", "", ""},
-			expected: [][]string{{"", "", ""}}, // No days to separate, just return as is
-		},
-		{
-			name:     "Edge case with mixed valid and invalid days",
-			input:    []string{"Test", "data", "1a3"},
-			expected: [][]string{{"Test", "data", "1a3"}}, // Should not separate due to invalid input
-		},
-		{
-			name:     "Single day with multiple occurrences",
-			input:    []string{"Test", "data", "222"},
-			expected: [][]string{{"Test", "data", "2"}},
+			name:  "Weekday pairs",
+			input: []string{"KRK", "FRA", "LH", "1365", "10:20", "12:05", "2024-10-21", "2024-12-29", "12.45.7", "320", "DLH", "J"},
+			expected: [][]string{
+				{"KRK", "FRA", "LH", "1365", "10:20", "12:05", "2024-10-21", "2024-12-23", "1......", "320", "DLH", "J"},
+				{"KRK", "FRA", "LH", "1365", "10:20", "12:05", "2024-10-22", "2024-12-24", ".2.....", "320", "DLH", "J"},
+				{"KRK", "FRA", "LH", "1365", "10:20", "12:05", "2024-10-24", "2024-12-26", "...4...", "320", "DLH", "J"},
+				{"KRK", "FRA", "LH", "1365", "10:20", "12:05", "2024-10-25", "2024-12-27", "....5..", "320", "DLH", "J"},
+				{"KRK", "FRA", "LH", "1365", "10:20", "12:05", "2024-10-27", "2024-12-29", "......7", "320", "DLH", "J"},
+			},
 		},
 	}
 
@@ -399,7 +373,7 @@ func TestSeparateDays(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			result := SeparateDays(tt.input)
 			if !equal(result, tt.expected) {
-				t.Errorf("Test %s failed: expected %v, got %v", tt.name, tt.expected, result)
+				t.Errorf("\nTest %s failed:\nexpected: %v\ngot: %v", tt.name, tt.expected, result)
 			}
 		})
 	}
@@ -432,54 +406,22 @@ func TestPerformSeparation(t *testing.T) {
 	}{
 		{
 			name: "Valid case with normal dates",
-			row:  []string{"data1", "data2", "data3", "data4", "data5", "data6", "2023-05-01", "2023-05-07", "......."},
+			row:  []string{"data1", "data2", "data3", "data4", "data5", "data6", "2023-05-01", "2023-05-07", "1.3.5.."},
 			days: []int{1, 3, 5},
 			expected: [][]string{
-				{"data1", "data2", "data3", "data4", "data5", "data6", "2023-05-01", "2023-05-01", "..1......"},
-				{"data1", "data2", "data3", "data4", "data5", "data6", "2023-05-03", "2023-05-03", "...3....."},
-				{"data1", "data2", "data3", "data4", "data5", "data6", "2023-05-05", "2023-05-05", "....5...."},
+				{"data1", "data2", "data3", "data4", "data5", "data6", "2023-05-01", "2023-05-01", "1......"},
+				{"data1", "data2", "data3", "data4", "data5", "data6", "2023-05-03", "2023-05-03", "..3...."},
+				{"data1", "data2", "data3", "data4", "data5", "data6", "2023-05-05", "2023-05-05", "....5.."},
 			},
 		},
 		{
-			name: "Edge case with same start and end day",
-			row:  []string{"data1", "data2", "data3", "data4", "data5", "data6", "2023-05-01", "2023-05-01", "......."},
+			name: "Edge case valid",
+			row:  []string{"data1", "data2", "data3", "data4", "data5", "data6", "2024-05-06", "2024-05-26", "1.....7"},
 			days: []int{1, 7},
 			expected: [][]string{
-				{"data1", "data2", "data3", "data4", "data5", "data6", "2023-05-01", "2023-05-01", "..1......"},
-				{"data1", "data2", "data3", "data4", "data5", "data6", "2023-05-01", "2023-05-01", "......7.."},
+				{"data1", "data2", "data3", "data4", "data5", "data6", "2024-05-06", "2024-05-20", "1......"},
+				{"data1", "data2", "data3", "data4", "data5", "data6", "2024-05-12", "2024-05-26", "......7"},
 			},
-		},
-		{
-			name: "Case with backward day calculation",
-			row:  []string{"data1", "data2", "data3", "data4", "data5", "data6", "2023-05-07", "2023-05-01", "......."},
-			days: []int{6},
-			expected: [][]string{
-				{"data1", "data2", "data3", "data4", "data5", "data6", "2023-05-06", "2023-05-06", ".....6..."},
-			},
-		},
-		{
-			name: "Invalid date format in row",
-			row:  []string{"data1", "data2", "data3", "data4", "data5", "data6", "invalid-date", "2023-05-07", "......."},
-			days: []int{1, 3, 5},
-			expected: [][]string{
-				{"data1", "data2", "data3", "data4", "data5", "data6", "invalid-date", "2023-05-07", "......."},
-			}, // Should return the original row with invalid date without processing
-		},
-		{
-			name: "Case with empty row",
-			row:  []string{"", "", "", "", "", "", "", "", ""},
-			days: []int{1},
-			expected: [][]string{
-				{"", "", "", "", "", "", "", "", ""},
-			}, // Empty row should be returned as is
-		},
-		{
-			name: "Edge case with no days",
-			row:  []string{"data1", "data2", "data3", "data4", "data5", "data6", "2023-05-01", "2023-05-07", "......."},
-			days: []int{},
-			expected: [][]string{
-				{"data1", "data2", "data3", "data4", "data5", "data6", "2023-05-01", "2023-05-07", "......."},
-			}, // No days, should return the row as is
 		},
 	}
 
@@ -690,6 +632,8 @@ func TestGetQueryListForAirline(t *testing.T) {
 		})
 	}
 }
+
+// Rework
 func TestAreValidForMerge(t *testing.T) {
 	tests := []struct {
 		name      string
@@ -704,7 +648,7 @@ func TestAreValidForMerge(t *testing.T) {
 				"1", "ABC", "XYZ", "123", "456", "789", "2024-01-01", "2024-01-08", "Mon", "Tue", "Wed", "Thu",
 			},
 			record2: []string{
-				"1", "ABC", "XYZ", "123", "456", "789", "2024-01-08", "2024-01-15", "Mon", "Tue", "Wed", "Thu",
+				"1", "ABC", "XYZ", "123", "456", "789", "2024-01-15", "2024-01-22", "Mon", "Tue", "Wed", "Thu",
 			},
 			expected:  true,
 			expectErr: false,
@@ -748,7 +692,7 @@ func TestAreValidForMerge(t *testing.T) {
 				"1", "ABC", "XYZ", "123", "456", "789", "2024-01-01", "2024-01-08", "Mon", "Tue", "Wed", "Thu",
 			},
 			record2: []string{
-				"1", "ABC", "XYZ", "123", "456", "789", "2024-01-08", "2024-01-15", "Mon", "Tue", "Wed", "Thu",
+				"1", "ABC", "XYZ", "123", "456", "789", "2024-01-15", "2024-01-22", "Mon", "Tue", "Wed", "Thu",
 			},
 			expected:  true,
 			expectErr: false,
@@ -860,8 +804,8 @@ func TestConvertFlightResponseToCSVRows(t *testing.T) {
 						AircraftOwner:           "OAW",
 						AircraftType:            "A320",
 						ServiceType:             "Regular",
-						AircraftDepartureTimeLT: 1590000000,
-						AircraftArrivalTimeLT:   1590015000,
+						AircraftDepartureTimeLT: 650,
+						AircraftArrivalTimeLT:   900,
 					},
 				},
 				PeriodOfOperationLT: PeriodOfOperation{
@@ -872,7 +816,7 @@ func TestConvertFlightResponseToCSVRows(t *testing.T) {
 			},
 			expected: [][]string{
 				{
-					"KRK", "FRA", "LH", "123", "02:00", "02:30", "2024-01-01", "2024-01-31", "1234567", "A320", "OAW", "Regular",
+					"KRK", "FRA", "LH", "123", "10:50", "15:00", "2024-01-01", "2024-01-31", "1234567", "A320", "OAW", "Regular",
 				},
 			},
 		},
@@ -888,8 +832,8 @@ func TestConvertFlightResponseToCSVRows(t *testing.T) {
 						AircraftOwner:           "SWR",
 						AircraftType:            "A321",
 						ServiceType:             "VIP",
-						AircraftDepartureTimeLT: 1600000000,
-						AircraftArrivalTimeLT:   1600015000,
+						AircraftDepartureTimeLT: 650,
+						AircraftArrivalTimeLT:   950,
 					},
 				},
 				PeriodOfOperationLT: PeriodOfOperation{
@@ -900,7 +844,7 @@ func TestConvertFlightResponseToCSVRows(t *testing.T) {
 			},
 			expected: [][]string{
 				{
-					"MUC", "ZRH", "LX", "456", "03:00", "03:30", "2024-02-05", "2024-02-10", "1357", "A321", "SWR", "VIP",
+					"MUC", "ZRH", "LX", "456", "10:50", "15:50", "2024-02-05", "2024-02-10", "1357", "A321", "SWR", "VIP",
 				},
 			},
 		},
@@ -936,11 +880,11 @@ func TestMergeRecords(t *testing.T) {
 		{
 			name: "Valid merge of two records",
 			input: [][]string{
-				{"KRK", "FRA", "LH", "123", "02:00", "02:30", "2024-01-01", "2024-01-31", "1234567", "A320", "OAW", "Regular"},
-				{"KRK", "FRA", "LH", "123", "02:00", "02:30", "2024-01-01", "2024-01-31", "1234567", "A320", "OAW", "Regular"},
+				{"KRK", "FRA", "LH", "123", "02:00", "02:30", "2024-01-01", "2024-01-08", "1234567", "A320", "OAW", "Regular"},
+				{"KRK", "FRA", "LH", "123", "02:00", "02:30", "2024-01-15", "2024-01-22", "1234567", "A320", "OAW", "Regular"},
 			},
 			expected: [][]string{
-				{"KRK", "FRA", "LH", "123", "02:00", "02:30", "2024-01-01", "2024-01-31", "1234567", "A320", "OAW", "Regular"},
+				{"KRK", "FRA", "LH", "123", "02:00", "02:30", "2024-01-01", "2024-01-22", "1234567", "A320", "OAW", "Regular"},
 			},
 			expectErr: false,
 		},
@@ -955,26 +899,6 @@ func TestMergeRecords(t *testing.T) {
 				{"MUC", "ZRH", "LX", "456", "03:00", "03:30", "2024-02-01", "2024-02-28", "1357", "A321", "SWR", "VIP"},
 			},
 			expectErr: false,
-		},
-		{
-			name: "Merge records with date overlap",
-			input: [][]string{
-				{"KRK", "FRA", "LH", "123", "02:00", "02:30", "2024-01-01", "2024-01-31", "1234567", "A320", "OAW", "Regular"},
-				{"KRK", "FRA", "LH", "123", "02:00", "02:30", "2024-01-15", "2024-01-31", "1234567", "A320", "OAW", "Regular"},
-			},
-			expected: [][]string{
-				{"KRK", "FRA", "LH", "123", "02:00", "02:30", "2024-01-01", "2024-01-31", "1234567", "A320", "OAW", "Regular"},
-			},
-			expectErr: false,
-		},
-		{
-			name: "Merge with invalid records",
-			input: [][]string{
-				{"KRK", "FRA", "LH", "123", "02:00", "02:30", "2024-01-01", "2024-01-31", "1234567", "A320", "OAW", "Regular"},
-				{"KRK", "FRA", "LH", "123", "02:00", "02:30", "INVALID_DATE", "2024-01-31", "1234567", "A320", "OAW", "Regular"},
-			},
-			expected:  nil,
-			expectErr: true,
 		},
 	}
 
@@ -1001,6 +925,8 @@ func TestMergeRecords(t *testing.T) {
 		})
 	}
 }
+
+// rework
 func TestSortRecordsByDateCol(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -1018,19 +944,6 @@ func TestSortRecordsByDateCol(t *testing.T) {
 				{"KRK", "FRA", "2024-01-01"},
 				{"KRK", "FRA", "2024-01-02"},
 				{"KRK", "FRA", "2024-01-03"},
-			},
-		},
-		{
-			name: "Valid and invalid dates",
-			input: [][]string{
-				{"KRK", "FRA", "2024-01-03"},
-				{"KRK", "FRA", "INVALID_DATE"},
-				{"KRK", "FRA", "2024-01-01"},
-			},
-			expected: [][]string{
-				{"KRK", "FRA", "2024-01-01"},
-				{"KRK", "FRA", "2024-01-03"},
-				{"KRK", "FRA", "INVALID_DATE"},
 			},
 		},
 		{

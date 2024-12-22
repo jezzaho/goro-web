@@ -49,18 +49,29 @@ func getMonthMap() map[string]string {
 func SSIMtoDate(s string) string {
 	monthMap := getMonthMap()
 
-	var dateString string
-
+	//var dateString string
+	var year string
+	var month string
+	var day string
 	length := len(s)
 	switch length {
 	case 6:
 		// 4JUL24 012345
-		dateString += "20" + s[4:] + "-" + monthMap[s[1:4]] + "-0" + s[:1]
+		//dateString += "20" + s[4:] + "-" + monthMap[s[1:4]] + "-0" + s[:1]
+		year = "20" + s[4:]
+		month = monthMap[s[1:4]]
+		day = "0" + s[:1]
 	case 7:
 		// 19JUL24 0123456
-		dateString += "20" + s[5:] + "-" + monthMap[s[2:5]] + "-" + s[:2]
+		//dateString += "20" + s[5:] + "-" + monthMap[s[2:5]] + "-" + s[:2]
+		year = "20" + s[5:]
+		month = monthMap[s[2:5]]
+		day = s[:2]
 	}
-	return dateString
+	if month == "" {
+		return ""
+	}
+	return year + "-" + month + "-" + day
 }
 
 func DateToSSIM(s string) string {
@@ -82,10 +93,9 @@ func DateToSSIM(s string) string {
 		}
 	}
 	if !foundFlag {
-		panic("DATETOSSIM ERROR FIX IT LATER")
+		return ""
 	}
 	return day + monthStr + year
-	// ERROR CHECK HELLO XD
 
 }
 
