@@ -11,6 +11,8 @@ import (
 
 var progressChan = make(chan int)
 
+const postURL = "https://api.lufthansa.com/v1/oauth/token"
+
 func (app *Application) MockHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -58,7 +60,11 @@ func (app *Application) MockHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Println(separateBool)
 
-	auth := internal.PostForAuth()
+	auth, err := internal.PostForAuth(http.DefaultClient, postURL)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	query := internal.GetQueryListForAirline(carrierNumber, dateFromSSIM, dateToSSIM)
 	progressChan <- 33
 	data := internal.GetApiData(query, auth)
