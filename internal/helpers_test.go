@@ -22,7 +22,7 @@ func TestFlattenJSON(t *testing.T) {
 			expected: []byte(`[1,2,3,4,5]`),
 		},
 		{
-			name:     "No '][' in JSON",
+			name:     "i",
 			input:    []byte(`[1,2,3]`),
 			expected: []byte(`[1,2,3]`), // No modification should occur
 		},
@@ -723,15 +723,15 @@ func TestPerformMerge(t *testing.T) {
 		expected []string
 	}{
 		{
-			name: "Merge records with matching columns and updated date",
+			name: "Merge records with matching columns and valid dates.",
 			record1: []string{
 				"1", "ABC", "XYZ", "123", "456", "789", "2024-01-01", "2024-01-08", "Mon", "Tue", "Wed", "Thu",
 			},
 			record2: []string{
-				"1", "ABC", "XYZ", "123", "456", "789", "2024-01-08", "2024-01-15", "Mon", "Tue", "Wed", "Thu",
+				"1", "ABC", "XYZ", "123", "456", "789", "2024-01-15", "2024-01-22", "Mon", "Tue", "Wed", "Thu",
 			},
 			expected: []string{
-				"1", "ABC", "XYZ", "123", "456", "789", "2024-01-01", "2024-01-15", "Mon", "Tue", "Wed", "Thu",
+				"1", "ABC", "XYZ", "123", "456", "789", "2024-01-01", "2024-01-22", "Mon", "Tue", "Wed", "Thu",
 			},
 		},
 		{

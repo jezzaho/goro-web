@@ -88,7 +88,7 @@ func getApiResponse(auth Auth, query ApiQuery) string {
 	if err != nil {
 		log.Println("Error occured during GET request from LH API: ", err.Error())
 		return ""
-	}	
+	}
 
 	defer response.Body.Close()
 	defer log.Println("Data request closed.")
@@ -105,37 +105,34 @@ func getApiResponse(auth Auth, query ApiQuery) string {
 	return string(body)
 }
 
-func PostForAuth() Auth {
-
-	postString := "https://api.lufthansa.com/v1/oauth/token"
-
-	client := http.Client{}
+func PostForAuth(client *http.Client, postURL string) (Auth, error) {
 
 	form := url.Values{}
 	form.Add("client_id", os.Getenv("CLIENT_ID"))
 	form.Add("client_secret", os.Getenv("CLIENT_SECRET"))
 	form.Add("grant_type", os.Getenv("GRANT_TYPE"))
 
-	req, err := http.NewRequest("POST", postString, strings.NewReader(form.Encode()))
+	req, err := http.NewRequest("POST", postURL, strings.NewReader(form.Encode()))
 	if err != nil {
 		log.Println("Error occured during POST method: ", err.Error())
-		return Auth{}
+		return Auth{}, fmt.Errorf("failed to create request: %w", err)
 	}
-	req.PostForm = form
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
 	resp, err := client.Do(req)
 	log.Println("Auth Request send.")
 	if err != nil {
 		log.Println("Error occured during request: ", err.Error())
-		return Auth{}
+		return Auth{}, fmt.Errorf("request failed: %w", err)
 	}
 	defer resp.Body.Close()
+
 	log.Println("Auth Request closed.")
+
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Println("Error occured during reading response: ", err.Error())
-		return Auth{}
+		return Auth{}, fmt.Errorf("failed to read response body: %w", err)
 	}
 
 	// GET REQUEST BUILDER
@@ -143,14 +140,9 @@ func PostForAuth() Auth {
 	var auth Auth
 	err = json.Unmarshal([]byte(body), &auth)
 	if err != nil || auth.AccessToken == "" {
-		log.Println("Error occured during parsing the data: ", err.Error())
-		return Auth{}
+		return Auth{}, fmt.Errorf("failed to parse response: %w", err)
 	}
+
 	log.Println("Successfully retrived authentication for a request")
-	return auth
+	return auth, nil
 }
-
-
-
-
-
