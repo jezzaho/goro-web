@@ -146,6 +146,5 @@ func CreateCSVFromResponse(writer io.Writer, jsonData []byte, separate bool) err
 		}
 	}
 
-
 	return nil
 }

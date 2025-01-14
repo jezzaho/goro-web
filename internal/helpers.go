@@ -169,45 +169,62 @@ func SeparateDays(r []string) [][]string {
 
 }
 
-func performSeparation(row []string, d []int) [][]string {
-	var v int
-	var newRows [][]string
-	for _, v = range d {
-		from := row[6]
-		to := row[7]
-		cpy := make([]string, len(row))
-		copy(cpy, row)
+func performSeparation(record []string, weekdays []int) [][]string {
+	var separatedRecords [][]string
 
-		from_day, _ := time.Parse("2006-01-02", from)
-		f_day_n := int(from_day.Weekday())
+	startDate := record[6]
+	endDate := record[7]
 
-		to_day, _ := time.Parse("2006-01-02", to)
-		t_day_n := int(to_day.Weekday())
-		var l int
+	startDateTime, _ := time.Parse("2006-01-02", startDate)
+	endDateTime, _ := time.Parse("2006-01-02", endDate)
 
-		// OD
-		if v < f_day_n {
-			l = 7 - (f_day_n - v)
-		} else {
-			l = v - f_day_n
-		}
-		// DO
-		var m int
-		if v > t_day_n {
-			m = (v - t_day_n) - 7
-		} else {
-			m = v - t_day_n
-		}
-
-		cpy[8] = strings.Repeat(".", v-1) + strconv.Itoa(v) + strings.Repeat(".", 7-v)
-		cpy[6] = string(from_day.AddDate(0, 0, l).Format("2006-01-02"))
-		cpy[7] = string(to_day.AddDate(0, 0, m).Format("2006-01-02"))
-
-		newRows = append(newRows, cpy)
-
-		// OD -> do przodu, DO do tylu, sprawdzenie dat
+	startWeekday := int(startDateTime.Weekday())
+	if startWeekday == 0 {
+		startWeekday = 7
 	}
-	return newRows
+	endWeekday := int(endDateTime.Weekday())
+	if endWeekday == 0 {
+		endWeekday = 7
+	}
+	for _, targetWeekday := range weekdays {
+		// Create a copy of the original record
+		newRecord := make([]string, len(record))
+		copy(newRecord, record)
+
+		// Calculate days to adjust for start date
+		daysToAdjustStart := 0
+		if targetWeekday < startWeekday {
+			daysToAdjustStart = 7 - (startWeekday - targetWeekday)
+		} else if targetWeekday > startWeekday {
+			daysToAdjustStart = targetWeekday - startWeekday
+		}
+
+		// Calculate days to adjust for end date
+		daysToAdjustEnd := 0
+		if targetWeekday > endWeekday {
+			daysToAdjustEnd = (targetWeekday - endWeekday) - 7
+		} else if targetWeekday < endWeekday {
+			daysToAdjustEnd = targetWeekday - endWeekday
+		}
+
+		// Create weekday marker (e.g., "...3....")
+		weekdayMarker := strings.Repeat(".", targetWeekday-1) +
+			strconv.Itoa(targetWeekday) +
+			strings.Repeat(".", 7-targetWeekday)
+
+		// Update the record with new values
+		newRecord[8] = weekdayMarker
+		if daysToAdjustStart != 0 {
+			newRecord[6] = startDateTime.AddDate(0, 0, daysToAdjustStart).Format("2006-01-02")
+		}
+		if daysToAdjustEnd != 0 {
+			newRecord[7] = endDateTime.AddDate(0, 0, daysToAdjustEnd).Format("2006-01-02")
+		}
+
+		separatedRecords = append(separatedRecords, newRecord)
+	}
+
+	return separatedRecords
 }
 
 func operatorToICAO(operator string) string {
