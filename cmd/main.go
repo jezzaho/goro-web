@@ -131,7 +131,7 @@ func main() {
 	defer cancel()
 
 	if err := srv.Shutdown(ctx); err != nil {
-		srv.logger.Error("Graceful Server shutdown failed", err)
+		srv.logger.Error("Graceful Server shutdown failed:", err)
 		os.Exit(1)
 	}
 
