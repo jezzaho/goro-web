@@ -135,10 +135,10 @@ func CreateCSVFromResponse(writer io.Writer, jsonData []byte, separate bool) err
 			}
 		}
 	} else {
-		csvData, err = MergeRecords(csvData)
-		if err != nil {
-			return err
-		}
+		// csvData, err = MergeRecords(csvData)
+		// if err != nil {
+		// 	return err
+		// }
 		for _, row := range csvData {
 			if err := csvWriter.Write(row); err != nil {
 				return err
