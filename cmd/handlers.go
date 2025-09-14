@@ -94,6 +94,8 @@ func (app *Application) MockHandler(w http.ResponseWriter, r *http.Request) {
 
 func (app *Application) IndexHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == "/" {
+		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+		w.Header().Set("Pragma", "no-cache")
 		http.ServeFile(w, r, "static/index.html")
 		return
 	}
