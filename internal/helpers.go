@@ -238,7 +238,7 @@ func operatorToICAO(operator string) string {
 		"OS": "AUA",
 		"SN": "BEL",
 		"TF": "BRX",
-		"WK": "EDW"
+		"WK": "EDW",
 	}
 
 	_, exists := operatorMap[operator]
